@@ -1,26 +1,51 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-function App() {
+export default function App() {
+  const [results, setResults] = useState([]);
+
+  const [query, setQuery] = useState('react hooks');
+
+  useEffect(() => {
+    getResults();
+  }, []);
+
+  const getResults = async () => {
+    const response = await axios.get(`/api/v1/search?query=${query}`);
+    console.log(response.data);
+    setResults(response.data.hits);
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+    getResults();
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <form onSubmit={handleSubmit}>
+        {' '}
+        <input
+          type="text"
+          value={query}
+          onChange={event => {
+            setQuery(event.target.value);
+          }}
+        />
+        <button type="submit">Search</button>
+      </form>
+
+      <ol>
+        {results.map(result => (
+          <li key={result.objectID}>
+            <a href="{result.url" target="_blank">
+              {result.title}
+            </a>
+          </li>
+        ))}
+      </ol>
+    </>
   );
 }
 
-export default App;
+// Now take this and clear the input box but place the last searched item somewher on the page
