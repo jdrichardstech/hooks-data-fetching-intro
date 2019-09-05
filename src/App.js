@@ -5,6 +5,7 @@ export default function App() {
   const [results, setResults] = useState([]);
   const [query, setQuery] = useState('react hooks');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const searchInputRef = useRef();
 
   useEffect(() => {
@@ -12,10 +13,14 @@ export default function App() {
   }, []);
 
   const getResults = async () => {
-    const response = await axios.get(`/api/v1/search?query=${query}`);
-    console.log(response.data);
-    setResults(response.data.hits);
-    setLoading(false);
+    try {
+      const response = await axios.get(`/api/v1/search?query=${query}`);
+      console.log(response.data);
+      setResults(response.data.hits);
+      setLoading(false);
+    } catch (err) {
+      setError(err);
+    }
   };
 
   const handleSubmit = event => {
@@ -51,13 +56,14 @@ export default function App() {
         <ol>
           {results.map(result => (
             <li key={result.objectID}>
-              <a href="{result.url" target="_blank">
+              <a href={result.url} target="_blank" rel="noopener noreferrer">
                 {result.title}
               </a>
             </li>
           ))}
         </ol>
       )}
+      {error && <div>{error.message}</div>}
     </>
   );
 }
