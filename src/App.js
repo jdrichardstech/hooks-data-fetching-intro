@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 export default function App() {
   const [results, setResults] = useState([]);
-
   const [query, setQuery] = useState('react hooks');
+  const [loading, setLoading] = useState(true);
+  const searchInputRef = useRef();
 
   useEffect(() => {
     getResults();
@@ -14,11 +15,16 @@ export default function App() {
     const response = await axios.get(`/api/v1/search?query=${query}`);
     console.log(response.data);
     setResults(response.data.hits);
+    setLoading(false);
   };
 
   const handleSubmit = event => {
     event.preventDefault();
     getResults();
+  };
+  const handleClearSearch = () => {
+    setQuery('');
+    searchInputRef.current.focus();
   };
 
   return (
@@ -31,21 +37,27 @@ export default function App() {
           onChange={event => {
             setQuery(event.target.value);
           }}
+          ref={searchInputRef}
         />
         <button type="submit">Search</button>
+        <button type="button" onClick={handleClearSearch}>
+          Clear
+        </button>
       </form>
 
-      <ol>
-        {results.map(result => (
-          <li key={result.objectID}>
-            <a href="{result.url" target="_blank">
-              {result.title}
-            </a>
-          </li>
-        ))}
-      </ol>
+      {loading ? (
+        <div>Loading results...</div>
+      ) : (
+        <ol>
+          {results.map(result => (
+            <li key={result.objectID}>
+              <a href="{result.url" target="_blank">
+                {result.title}
+              </a>
+            </li>
+          ))}
+        </ol>
+      )}
     </>
   );
 }
-
-// Now take this and clear the input box but place the last searched item somewher on the page
